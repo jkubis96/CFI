@@ -1,0 +1,15 @@
+A,B,interaction_type,connection_type,source
+CLU,CLU,physical association,protein -> protein,Alzheimers
+CLU,HSP90AA1,physical association,protein -> protein,Alzheimers
+FBL,KRR1,,gene -> gene,STRING
+FBL,KRR1,,protein -> protein,STRING
+KRR1,FBL,,gene -> gene,STRING
+KRR1,FBL,,protein -> protein,STRING
+FBL,KRR1,,gene -> gene,STRING
+FBL,KRR1,,protein -> protein,STRING
+KRR1,FBL,,gene -> gene,STRING
+KRR1,FBL,,protein -> protein,STRING
+FBL,KRR1,,gene -> gene,STRING
+FBL,KRR1,,protein -> protein,STRING
+KRR1,FBL,,gene -> gene,STRING
+KRR1,FBL,,protein -> protein,STRING

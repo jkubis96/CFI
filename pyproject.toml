@@ -1,0 +1,44 @@
+[project]
+name = "cfi"
+version = "0.1.0"
+description = "CFI: Cell Functionality and Interaction Analysis Tool"
+readme = "README.md"
+
+authors = [
+    { name = "Jakub Kubis - JBS", email = "jbiosystem@gmail.com" }
+]
+
+requires-python = ">=3.12,<3.13"
+
+keywords = [
+    "scRNA_seq", "SEQ", "GO", "pathways", "interactions",
+    "gene ontology", "diseases", "enrichment", "OMIC"
+]
+
+license = { text = "GPL-3" }
+
+
+dependencies = [
+    "gedspy (>=2.1.9,<3.0.0)",
+    "llvmlite (>=0.46.0,<0.47.0)",
+    "jdti (>=0.2.2,<0.3.0)",
+    "jvectorgraph (>=1.0.2,<2.0.0)"
+   
+]
+
+
+[project.urls]
+Homepage = "https://github.com/jkubis96/CFI"
+Repository = "https://github.com/jkubis96/CFI"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.4.2,<9.0.0"
+spyder-kernels = "2.4"
+pytest-timeout = "^2.4.0"
+
+[tool.pytest.ini_options]
+timeout = 300
