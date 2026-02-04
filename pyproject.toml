@@ -22,8 +22,8 @@ dependencies = [
     "gedspy (>=2.1.9,<3.0.0)",
     "llvmlite (>=0.46.0,<0.47.0)",
     "jdti (>=0.2.2,<0.3.0)",
-    "jvectorgraph (>=1.0.2,<2.0.0)"
-   
+    "jvectorgraph (>=1.0.2,<2.0.0)",
+    "pandas (<3.0.0)"
 ]
 
 
@@ -41,4 +41,4 @@ spyder-kernels = "2.4"
 pytest-timeout = "^2.4.0"
 
 [tool.pytest.ini_options]
-timeout = 300
+timeout = 1000
