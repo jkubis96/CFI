@@ -228,13 +228,13 @@ instance2.calculate_cell_connections()
 
 
 
-instances_dict = {'healthy':instance2,
-                  'disease':instance1}
-
 
 
 from cfi import compare_connections
 
+
+instances_dict = {'healthy':instance2,
+                  'disease':instance1}
 
 comparison = compare_connections(instances_dict=instances_dict, 
                                  cells_compartment = None, 
