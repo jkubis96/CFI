@@ -17,7 +17,6 @@ print(__pattern__)
 from .CellFunctionality import *
 from .CellGraph import *
 
-
 print("")
 print("Welcome in CFI v.0.0.1 library")
 print("")

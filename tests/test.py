@@ -1,23 +1,22 @@
 import os
-import pytest
-import pandas as pd
+
 import matplotlib
-matplotlib.use("Agg") 
+import pandas as pd
+import pytest
 
-from matplotlib.figure import Figure
+matplotlib.use("Agg")
+
 import networkx as nx
-
+from jdti import COMPsc
+from matplotlib.figure import Figure
 
 from cfi import (
     CellFunCon,
+    compare_connections,
+    draw_cell_conections,
     encrichment_cell_heatmap,
     gene_interaction_network,
-    draw_cell_conections,
-    compare_connections,
 )
-
-from jdti import COMPsc
-
 
 
 @pytest.fixture(scope="session")
@@ -50,17 +49,9 @@ def instance1(jseq_s1, tmp_path_factory):
 
     inst = CellFunCon.load_project("test.psc")
 
-    inst.calculate_cells_markers(
-        min_exp=0,
-        min_pct=0.05,
-        n_proc=2
-    )
+    inst.calculate_cells_markers(min_exp=0, min_pct=0.05, n_proc=2)
 
-    inst.enrich_cells_fucntionality(
-        p_value=0.05,
-        log_fc=0.25,
-        top_max=200
-    )
+    inst.enrich_cells_fucntionality(p_value=0.05, log_fc=0.25, top_max=200)
 
     return inst
 
@@ -75,6 +66,7 @@ def instance2(jseq_s2):
 # =========================
 # TESTY PODSTAWOWE
 # =========================
+
 
 def test_cell_connections(instance1):
     df = instance1.get_cell_connections()
@@ -92,12 +84,8 @@ def test_included_cells(instance1):
 # TESTY ENRICHMENT
 # =========================
 
-@pytest.mark.parametrize("data_type", [
-    "GO-TERM",
-    "KEGG",
-    "REACTOME",
-    "specificity"
-])
+
+@pytest.mark.parametrize("data_type", ["GO-TERM", "KEGG", "REACTOME", "specificity"])
 def test_enrichment_data(instance1, data_type):
     enr = instance1.get_enrichment_data(
         data_type=data_type,
@@ -105,31 +93,19 @@ def test_enrichment_data(instance1, data_type):
         test="FISH",
         adj="BH",
         parent_inc=False,
-        top_n=20
+        top_n=20,
     )
 
     assert isinstance(enr, pd.DataFrame)
     assert len(enr.index) > 1
 
 
-
-
-
 def test_heatmap_plot(instance1):
     enr = instance1.get_enrichment_data(
-        data_type="GO-TERM",
-        test="FISH",
-        adj="BH",
-        parent_inc=False,
-        top_n=10
+        data_type="GO-TERM", test="FISH", adj="BH", parent_inc=False, top_n=10
     )
 
-    fig = encrichment_cell_heatmap(
-        data=enr,
-        fig_size=(3, 3),
-        top_n=3,
-        scale=True
-    )
+    fig = encrichment_cell_heatmap(data=enr, fig_size=(3, 3), top_n=3, scale=True)
 
     assert isinstance(fig, Figure)
 
@@ -138,10 +114,7 @@ def test_gene_interaction_network(instance1):
     cell = instance1.get_included_cells()[0]
     gi = instance1.get_gene_interactions(cell)
 
-    fig = gene_interaction_network(
-        idata=gi,
-        min_con=1
-    )
+    fig = gene_interaction_network(idata=gi, min_con=1)
 
     assert isinstance(fig, nx.Graph)
 
@@ -149,27 +122,22 @@ def test_gene_interaction_network(instance1):
 def test_draw_cell_connections(instance1):
     cell_con = instance1.get_cell_connections()
     fig = draw_cell_conections(cell_con)
-    
-    assert isinstance(fig, nx.Graph)
 
+    assert isinstance(fig, nx.Graph)
 
 
 def test_compare_connections(instance1, instance2):
     comparison = compare_connections(
-        instances_dict={
-            "healthy": instance2,
-            "disease": instance1
-        },
+        instances_dict={"healthy": instance2, "disease": instance1},
         connection_type=[
             "Adhesion-Adhesion",
             "Gap-Gap",
             "Ligand-Ligand",
             "Ligand-Receptor",
             "Receptor-Receptor",
-            "Undefined"
-        ]
+            "Undefined",
+        ],
     )
 
     assert isinstance(comparison, pd.DataFrame)
     assert len(comparison.index) > 1
-

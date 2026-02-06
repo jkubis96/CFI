@@ -1,50 +1,53 @@
+import copy
+import os
+import pickle
+import sys
+
 import pandas as pd
 from tqdm import tqdm
-import sys
-import os
 
 _old_stdout = sys.stdout
-sys.stdout = open(os.devnull, 'w')
+sys.stdout = open(os.devnull, "w")
 
-from gedspy import Enrichment
-from gedspy import Analysis
+from gedspy import Analysis, Enrichment
 
 sys.stdout.close()
 sys.stdout = _old_stdout
 
-import pickle
-import copy
-
 
 class CellFunCon:
-    
     """
-    A class to perform cell-type functional analysis and enrichment based on a JDTI/COMPsc dataset.
+    A class to perform cell-type functional analysis and enrichment based on a JDtI-COMPsc objects.
 
-    This class provides methods to calculate marker genes for cell types, perform functional enrichment 
-    (GO, KEGG, REACTOME, STRING, IntAct), and compute cell-cell interaction networks. 
+    This class provides methods to calculate marker genes for cell types, perform functional enrichment
+    (GO, KEGG, REACTOME, STRING, IntAct), and compute cell-cell interaction networks.
     Projects can also be saved and loaded via pickle.
 
     Attributes
     ----------
     jdti : object
-        JDTI or COMPsc object containing normalized single-cell data.
+        JDtI-COMPsc object containing normalized single-cell data.
+
     cells_markers : pd.DataFrame or None
         DataFrame containing marker genes per cell type after calculation.
+
     enr_full_info : Enrichment
         Enrichment object containing all genes available for enrichment analysis.
-    cells_enrichment : dict
+
+    cells_enrichment : dict or None
         Dictionary storing enrichment results per cell type.
+
     cells_connection : pd.DataFrame or None
         DataFrame storing calculated cell-cell interaction information.
+
     mt_genes : bool
         Whether mitochondrial genes are included (default False).
+
     ribo_genes : bool
         Whether ribosomal genes are included (default False).
     """
-    
-    def __init__(self, jdti_object):
-        
+
+    def __init__(self, jdti_object, mt_genes=False, ribo_genes=False):
         """
         Initializes the CellFunCon object with a COMPsc/JDTI object.
 
@@ -52,55 +55,69 @@ class CellFunCon:
         ----------
         jdti_object : object
             A COMPsc or JDTI object with normalized single-cell data.
+
+        mt_genes : bool
+            Whether mitochondrial genes are included (default False).
+
+        ribo_genes : bool
+            Whether ribosomal genes are included (default False).
         """
 
         self.jdti = jdti_object
-        self.cells_markers = None
-        self.enr_full_genes = None
-        self.cells_connection = None
-        self.mt_genes = False
-        self.ribo_genes = False
-        
-                
-        names =  self.jdti.normalized_data.loc[self.jdti.normalized_data.select_dtypes(include='number').sum(axis=1) > 0].index.tolist()
-        names = list(set(names))
-        
-        if self.mt_genes is False:
-            names = [x for x in names if 'MT-' not in x.upper()]
-        if self.ribo_genes is False:
-            names = [x for x in names if 'RPS' != x[:3].upper()]
-            names = [x for x in names if 'RPL' != x[:3].upper()]
-    
-        enr=Enrichment()
-        enr.select_features(names)
-        
-        self.enr_full_info = enr
-        
+        """JDtI-COMPsc object containing normalized single-cell data."""
 
+        self.cells_markers = None
+        """DataFrame containing marker genes per cell type after calculation."""
+
+        self.cells_connection = None
+        """DataFrame storing calculated cell-cell interaction information."""
+
+        self.cells_enrichment = None
+        """Dictionary storing enrichment results per cell type."""
+
+        self.mt_genes = mt_genes
+        """Whether mitochondrial genes are included (default False)."""
+
+        self.ribo_genes = ribo_genes
+        """Whether ribosomal genes are included (default False)."""
+
+        names = self.jdti.normalized_data.loc[
+            self.jdti.normalized_data.select_dtypes(include="number").sum(axis=1) > 0
+        ].index.tolist()
+        names = list(set(names))
+
+        if self.mt_genes is False:
+            names = [x for x in names if "MT-" not in x.upper()]
+        if self.ribo_genes is False:
+            names = [x for x in names if "RPS" != x[:3].upper()]
+            names = [x for x in names if "RPL" != x[:3].upper()]
+
+        enr = Enrichment()
+        enr.select_features(names)
+
+        self.enr_full_info = enr
+        """Enrichment object containing all genes available for enrichment analysis."""
 
     def save_project(self, filename):
-        
         """
         Saves the current CellFunCon project as a pickle file.
 
         Parameters
         ----------
         filename : str
-            Path to save the project (e.g., 'project_name.psc').
+            Path to save the project (e.g., 'project_name').
 
         Example
         -------
-        >>> self.save_project('my_project.psc')
+        >>> self.save_project('my_project')
         """
-        
-        with open(f'{filename}.psc', "wb") as f:
+
+        with open(f"{filename}.psc", "wb") as f:
             pickle.dump(self, f)
         print(f"Project saved as {filename}")
 
-
     @classmethod
     def load_project(cls, filename):
-        
         """
         Loads a previously saved CellFunCon project from a pickle file.
 
@@ -118,6 +135,7 @@ class CellFunCon:
         ------
         TypeError
             If the loaded object is not a CellFunCon self.
+
         ValueError
             If the file is not a valid CellFunCon project file.
 
@@ -126,8 +144,7 @@ class CellFunCon:
         >>> self = CellFunCon.load_project('my_project.psc')
         """
 
-
-        if '.psc' in filename:
+        if ".psc" in filename:
             with open(filename, "rb") as f:
                 obj = pickle.load(f)
             if not isinstance(obj, cls):
@@ -135,24 +152,27 @@ class CellFunCon:
             print(f"Projekt wczytany z {filename}")
             return obj
         else:
-            raise ValueError('Project not belong to CellFunCon project data.')
+            raise ValueError("Project not belong to CellFunCon project data.")
 
-
-
-    def calculate_cells_markers(self, 
-                         min_exp = 0, 
-                         min_pct = 0.05, 
-                         n_proc=10):
-        
+    def calculate_cells_markers(self, min_exp=0, min_pct=0.05, n_proc=10):
         """
         Calculates marker genes for each cell type based on expression thresholds.
+
+        Perform differential gene expression (DEG) analysis on gene expression data.
+
+        The function compares groups of cells or samples (defined by `entities` or
+        `sets`) using the Mann–Whitney U test. It computes p-values, adjusted
+        p-values, fold changes, standardized effect sizes, and other statistics.
+
 
         Parameters
         ----------
         min_exp : float, optional
             Minimum expression level to consider a gene (default 0).
+
         min_pct : float, optional
             Minimum fraction of cells expressing a gene (default 0.05).
+
         n_proc : int, optional
             Number of parallel processes to use (default 10).
 
@@ -160,20 +180,14 @@ class CellFunCon:
         -----
         The results are stored in the `cells_markers` attribute.
         """
-            
-        self.jdti.calculate_difference_markers(min_exp=min_exp, 
-                                             min_pct=min_pct, 
-                                             n_proc=n_proc, 
-                                             force=True)
-    
-        self.cells_markers = self.jdti.var_data
-    
 
-    def enrich_cells_fucntionality(self, 
-                                   p_value = 0.05, 
-                                   log_fc = 0.25, 
-                                   top_max = 500):
-        
+        self.jdti.calculate_difference_markers(
+            min_exp=min_exp, min_pct=min_pct, n_proc=n_proc, force=True
+        )
+
+        self.cells_markers = self.jdti.var_data
+
+    def enrich_cells_fucntionality(self, p_value=0.05, log_fc=0.25, top_max=500):
         """
         Performs functional enrichment analysis for each cell type based on marker genes.
 
@@ -181,8 +195,10 @@ class CellFunCon:
         ----------
         p_value : float, optional
             Maximum adjusted p-value for significant genes (default 0.05).
+
         log_fc : float, optional
             Minimum log fold-change threshold for marker genes (default 0.25).
+
         top_max : int, optional
             Maximum number of top marker genes per cell type to consider (default 500).
 
@@ -193,38 +209,46 @@ class CellFunCon:
 
         Notes
         -----
-        This method populates `cells_enrichment` with results for GO-TERM, KEGG, REACTOME, 
+        This method populates `cells_enrichment` with results for GO-TERM, KEGG, REACTOME,
         STRING, IntAct, and specificity analyses.
         """
-        
-        
+
         if isinstance(self.cells_markers, pd.DataFrame):
-            
+
             markers = self.cells_markers
-            cells=set(markers['valid_group'])
-            
+            cells = set(markers["valid_group"])
+
             data_dict = {}
-            
+
             max_c = len(cells)
             for n, c in enumerate(cells):
-                print(f'\nAnalysis {n+1} of {max_c} cells --> {c} \n')
-                tmp = markers[(markers['valid_group'] == c) & (markers['adj_pval'] <= p_value) & (markers['log(FC)'] > log_fc)]
-                names = list(set(tmp['feature']))
-                
-                tmp = tmp[tmp['feature'].isin(names)]
-    
+                print(f"\nAnalysis {n+1} of {max_c} cells --> {c} \n")
+                tmp = markers[
+                    (markers["valid_group"] == c)
+                    & (markers["adj_pval"] <= p_value)
+                    & (markers["log(FC)"] > log_fc)
+                ]
+                names = list(set(tmp["feature"]))
+
+                tmp = tmp[tmp["feature"].isin(names)]
+
                 if len(tmp.index) < 10:
-                    tmp = markers[(markers['valid_group'] == c) & (markers['p_val'] <= p_value) & (markers['log(FC)'] > log_fc)]
-                    names = list(set(tmp['feature']))
-                    
-                    tmp = tmp[tmp['feature'].isin(names)]
-                
-                tmp = tmp.sort_values('esm', ascending=False).head(top_max)
-    
-               
+                    tmp = markers[
+                        (markers["valid_group"] == c)
+                        & (markers["p_val"] <= p_value)
+                        & (markers["log(FC)"] > log_fc)
+                    ]
+                    names = list(set(tmp["feature"]))
+
+                    tmp = tmp[tmp["feature"].isin(names)]
+
+                tmp = tmp.sort_values("esm", ascending=False).head(top_max)
+
                 data_dict[c] = {}
-                enr=copy.copy(self.enr_full_info)
-                enr.genome = enr.genome[enr.genome['found_names'].isin(list(set(tmp['feature'])))].reset_index(drop = True)
+                enr = copy.copy(self.enr_full_info)
+                enr.genome = enr.genome[
+                    enr.genome["found_names"].isin(list(set(tmp["feature"])))
+                ].reset_index(drop=True)
                 enr.enriche_specificiti()
                 enr.enriche_KEGG()
                 enr.enriche_GOTERM()
@@ -235,7 +259,7 @@ class CellFunCon:
 
                 data = enr.get_results()
                 del enr
-                
+
                 ans = Analysis(data)
                 ans.gene_interaction()
                 ans.features_specificity()
@@ -243,40 +267,45 @@ class CellFunCon:
                 ans.KEGG_overrepresentation()
                 ans.GO_overrepresentation()
                 ans.features_specificity()
-                
-                data_dict[c] = ans.get_full_results()
-            
-            self.cells_enrichment = data_dict
-            
-        else:
-            raise ValueError('`self.cells_markers` not defined. Use `self.cells_markers` to provide markers.')
-            
-            
- 
 
-    def get_enrichment_data(self, 
-                            data_type = 'GO-TERM', 
-                            p_value = 0.05, 
-                            test = 'FISH', 
-                            adj = 'BH', 
-                            parent_inc = False, 
-                            top_n = 50):
-        
+                data_dict[c] = ans.get_full_results()
+
+            self.cells_enrichment = data_dict
+
+        else:
+            raise ValueError(
+                "`self.cells_markers` not defined. Use `self.cells_markers` to provide markers."
+            )
+
+    def get_enrichment_data(
+        self,
+        data_type="GO-TERM",
+        p_value=0.05,
+        test="FISH",
+        adj="BH",
+        parent_inc=False,
+        top_n=50,
+    ):
         """
         Retrieves enrichment results for all cells in a unified DataFrame.
 
         Parameters
         ----------
-        data_type : str, optional
+        data_type : str
             Type of enrichment to retrieve ('GO-TERM', 'KEGG', 'REACTOME', 'specificity').
+
         p_value : float, optional
             Maximum p-value threshold (default 0.05).
+
         test : str, optional
             Name of the statistical test column to use (default 'FISH').
+
         adj : str, optional
             P-value adjustment method (default 'BH').
+
         parent_inc : bool, optional
             Whether to include parent terms in the results (default False).
+
         top_n : int, optional
             Maximum number of terms per cell type to include (default 50).
 
@@ -290,61 +319,60 @@ class CellFunCon:
         ValueError
             If `data_type` is not one of the expected values.
         """
-        
-        if not any(x in data_type for x in ('GO-TERM', 'KEGG', 'REACTOME', 'specificity')):
-            raise ValueError("Invalid value for 'data_type'. Expected: 'GO-TERM', 'KEGG', 'REACTOME' or 'specificity'.")
-           
-        if  data_type == 'GO-TERM':
-            parent_col = 'parent'
-    
-        elif data_type == 'KEGG':
-            parent_col = '2nd'
-            
-        elif data_type == 'REACTOME':
-            parent_col = 'top_level'
-            
-        elif data_type == 'specificity':
-            parent_col = 'None'
-    
-    
+
+        if not any(
+            x in data_type for x in ("GO-TERM", "KEGG", "REACTOME", "specificity")
+        ):
+            raise ValueError(
+                "Invalid value for 'data_type'. Expected: 'GO-TERM', 'KEGG', 'REACTOME' or 'specificity'."
+            )
+
+        if data_type == "GO-TERM":
+            parent_col = "parent"
+
+        elif data_type == "KEGG":
+            parent_col = "2nd"
+
+        elif data_type == "REACTOME":
+            parent_col = "top_level"
+
+        elif data_type == "specificity":
+            parent_col = "None"
+
         pdl = []
         for i in self.cells_enrichment.keys():
-            print(i) 
-            if data_type == 'specificity':
-                tmp_dict = self.cells_enrichment[i]['statistics'][data_type]
+            print(i)
+            if data_type == "specificity":
+                tmp_dict = self.cells_enrichment[i]["statistics"][data_type]
                 tmp = []
                 for k in tmp_dict.keys():
-                    if k != 'HPA_subcellular_location':
+                    if k != "HPA_subcellular_location":
                         tmp.append(pd.DataFrame(tmp_dict[k]))
-                
+
                 tmp = pd.concat(tmp)
-                    
+
             else:
-                tmp = pd.DataFrame(self.cells_enrichment[i]['statistics'][data_type])
-    
-                                 
+                tmp = pd.DataFrame(self.cells_enrichment[i]["statistics"][data_type])
+
             cols = [x for x in tmp.columns if test in x and adj in x]
             cols = sorted(cols, reverse=True)
             if parent_inc is False:
                 cols = [x for x in cols if parent_col not in x.lower()]
-            
+
             mask = (tmp[cols] <= p_value).all(axis=1)
             tmp = tmp.loc[mask]
-            tmp['cell'] = i
-            tmp = tmp.sort_values(by=['cell'] + cols, ascending=True)
-    
+            tmp["cell"] = i
+            tmp = tmp.sort_values(by=["cell"] + cols, ascending=True)
+
             pdl.append(tmp.head(top_n))
-            
-            
+
         df = pd.concat(pdl)
-        df['source'] = data_type
-        df = df.reset_index(drop = True)
-        
+        df["source"] = data_type
+        df = df.reset_index(drop=True)
+
         return df
-    
 
     def get_included_cells(self):
-        
         """
         Returns the list of cell types included in the enrichment analysis.
 
@@ -358,17 +386,15 @@ class CellFunCon:
         >>> self.get_included_cells()
         ['CellType1', 'CellType2', ...]
         """
-        
+
         cl = []
         for i in self.cells_enrichment.keys():
-            print(i) 
+            print(i)
             cl.append(i)
-            
+
         return cl
 
-    
     def get_gene_interactions(self, cell_name):
-        
         """
         Retrieves gene or protein interaction data for a specific cell type.
 
@@ -386,20 +412,21 @@ class CellFunCon:
         -------
         >>> self.get_gene_interactions('CellType1')
         """
-        
-        tmp = pd.DataFrame(self.cells_enrichment[cell_name]['statistics']['interactions'])
-        
+
+        tmp = pd.DataFrame(
+            self.cells_enrichment[cell_name]["statistics"]["interactions"]
+        )
+
         return tmp
 
-
     def calculate_cell_connections(self):
-        
         """
         Calculates cell-cell interaction connections based on gene/protein co-expression.
 
         Notes
         -----
         Populates `cells_connection` with a DataFrame containing interactions between all pairs of cells.
+
         Each row represents an interaction between two cells and the involved genes/proteins.
 
         Raises
@@ -407,65 +434,75 @@ class CellFunCon:
         ValueError
             If `normalized_data` is not defined in the JDTI object.
         """
-        
+
         if isinstance(self.jdti.normalized_data, pd.DataFrame):
-            
-            
-            cells=set(self.jdti.normalized_data.columns)
-          
+
+            cells = set(self.jdti.normalized_data.columns)
+
             data_dict = {}
-            
+
             for c in tqdm(cells):
-                
-                  
-                tmp = self.jdti.normalized_data.loc[:,c]
-                names =  tmp.loc[tmp.select_dtypes(include='number').sum(axis=1) > 0].index.tolist()
+
+                tmp = self.jdti.normalized_data.loc[:, c]
+                names = tmp.loc[
+                    tmp.select_dtypes(include="number").sum(axis=1) > 0
+                ].index.tolist()
                 names = list(set(names))
-            
-               
-                enr=copy.copy(self.enr_full_info)
-                enr.genome = enr.genome[enr.genome['found_names'].isin(names)].reset_index(drop = True)
+
+                enr = copy.copy(self.enr_full_info)
+                enr.genome = enr.genome[
+                    enr.genome["found_names"].isin(names)
+                ].reset_index(drop=True)
                 enr.enriche_CellCon()
                 data = enr.get_results()
                 del enr
-                
-                data_dict[c] = data['CellConnections']
-                
+
+                data_dict[c] = data["CellConnections"]
+
             full_data = []
             for c1 in tqdm(cells):
                 for c2 in cells:
                     if c1 != c2:
-                        c1_d = pd.DataFrame(data_dict[c1]['interactor2'])
-                        c2_d = pd.DataFrame(data_dict[c2]['interactor1'])
-                        
-                        mutual_lr = c1_d['interaction'][c1_d['interaction'].isin(list(c2_d['interaction']))]
-                        
-                        to_ret = c1_d[
-                            c1_d['interaction'].isin(list(mutual_lr))
-                        ].drop(
-                            ['Species', 'protein_id_1', 'protein_id_2', 'found_names_2'], 
-                            axis=1
-                        ).reset_index(drop=True)
-                        
-                        to_ret = to_ret.rename(columns={'found_names_1': 'interactor1'})
-                        c2_subset = c2_d[['interaction', 'found_names_2']].rename(columns={'found_names_2': 'interactor2'})
-                        
-                        to_ret = to_ret.merge(c2_subset, on='interaction', how='left')
-                        to_ret['cell1'] = c1
-                        to_ret['cell2'] = c2
-                        
+                        c1_d = pd.DataFrame(data_dict[c1]["interactor2"])
+                        c2_d = pd.DataFrame(data_dict[c2]["interactor1"])
+
+                        mutual_lr = c1_d["interaction"][
+                            c1_d["interaction"].isin(list(c2_d["interaction"]))
+                        ]
+
+                        to_ret = (
+                            c1_d[c1_d["interaction"].isin(list(mutual_lr))]
+                            .drop(
+                                [
+                                    "Species",
+                                    "protein_id_1",
+                                    "protein_id_2",
+                                    "found_names_2",
+                                ],
+                                axis=1,
+                            )
+                            .reset_index(drop=True)
+                        )
+
+                        to_ret = to_ret.rename(columns={"found_names_1": "interactor1"})
+                        c2_subset = c2_d[["interaction", "found_names_2"]].rename(
+                            columns={"found_names_2": "interactor2"}
+                        )
+
+                        to_ret = to_ret.merge(c2_subset, on="interaction", how="left")
+                        to_ret["cell1"] = c1
+                        to_ret["cell2"] = c2
+
                         full_data.append(to_ret)
-                        
+
             self.cells_connection = pd.concat(full_data)
-            
-                        
-            
+
         else:
-            raise ValueError('`self.cells_markers` not defined. Use `self.cells_markers` to provide markers.')
-            
-            
+            raise ValueError(
+                "`self.cells_markers` not defined. Use `self.cells_markers` to provide markers."
+            )
+
     def get_cell_connections(self):
-        
         """
         Returns the calculated cell-cell interaction connections.
 
@@ -478,22 +515,22 @@ class CellFunCon:
         -------
         >>> connections = self.get_cell_connections()
         """
-        
-        return self.cells_connection 
+
+        return self.cells_connection
 
 
-
-
-
-def compare_connections(instances_dict:dict, 
-                        cells_compartment:dict | None = None, 
-                        connection_type: list  = ['Adhesion-Adhesion',
-                                                  'Gap-Gap',
-                                                  'Ligand-Ligand',
-                                                  'Ligand-Receptor',
-                                                  'Receptor-Receptor',
-                                                  'Undefined']):
-    
+def compare_connections(
+    instances_dict: dict,
+    cells_compartment: dict | None = None,
+    connection_type: list = [
+        "Adhesion-Adhesion",
+        "Gap-Gap",
+        "Ligand-Ligand",
+        "Ligand-Receptor",
+        "Receptor-Receptor",
+        "Undefined",
+    ],
+):
     """
     Compare gene expression between two instances based on their cell connections.
 
@@ -506,9 +543,10 @@ def compare_connections(instances_dict:dict,
     ----------
     instances_dict : dict
         Dictionary containing exactly two objects. Each object must have:
-        
+
         - ``jdti.normalized_data`` : pandas.DataFrame
             Gene expression matrix with genes as rows and cells as columns.
+
         - ``cells_connection`` : pandas.DataFrame
             DataFrame containing at least the columns ``'interactor1'`` and
             ``'interactor2'``.
@@ -536,103 +574,99 @@ def compare_connections(instances_dict:dict,
     Notes
     -----
     - Only genes common to both instances are considered.
+
     - When ``cells_compartment`` is ``None``, genes are further restricted to
       those appearing in the cell–cell interaction networks of either instance.
+
     - The function assumes exactly two entries in ``instances_dict``.
+
     - Differential expression is computed with ``min_exp=0`` and ``min_pct=0.1``.
 
     See Also
     --------
     jdti.calc_DEG : Function used to compute differential expression.
     """
-    
+
     import pandas as pd
     from jdti import calc_DEG
-    
+
     if isinstance(cells_compartment, dict):
-        
+
         keys_list = list(instances_dict.keys())
         tmp1 = instances_dict[keys_list[0]].jdti.normalized_data.copy()
         cells = cells_compartment[keys_list[0]]
         if any(cell not in tmp1.columns for cell in cells):
-            raise ValueError('Any of {keys_list[0]} cells in dictionary "cells_compartment" do not occur!')
-        tmp1 = tmp1.loc[:,cells]
-        tmp1.columns = [keys_list[0]]*len(tmp1.columns)
-        
+            raise ValueError(
+                'Any of {keys_list[0]} cells in dictionary "cells_compartment" do not occur!'
+            )
+        tmp1 = tmp1.loc[:, cells]
+        tmp1.columns = [keys_list[0]] * len(tmp1.columns)
+
         tmp2 = instances_dict[keys_list[1]].jdti.normalized_data.copy()
         cells = cells_compartment[keys_list[1]]
         if any(cell not in tmp2.columns for cell in cells):
-            raise ValueError('Any of {keys_list[1]} cells in dictionary "cells_compartment" do not occur!')
-        tmp2 = tmp2.loc[:,cells]
-        tmp2.columns = [keys_list[1]]*len(tmp2.columns)
-            
+            raise ValueError(
+                'Any of {keys_list[1]} cells in dictionary "cells_compartment" do not occur!'
+            )
+        tmp2 = tmp2.loc[:, cells]
+        tmp2.columns = [keys_list[1]] * len(tmp2.columns)
+
         common_idx = tmp1.index.intersection(tmp2.index)
 
         tmp1 = tmp1.loc[common_idx]
         tmp2 = tmp2.loc[common_idx]
-        
-        concat_df = pd.concat([tmp1, tmp2],  axis=1)
-            
+
+        concat_df = pd.concat([tmp1, tmp2], axis=1)
+
     else:
-        
+
         keys_list = list(instances_dict.keys())
         tmp1 = instances_dict[keys_list[0]].jdti.normalized_data.copy()
-        tmp1.columns = [keys_list[0]]*len(tmp1.columns)
-        
+        tmp1.columns = [keys_list[0]] * len(tmp1.columns)
+
         tmp2 = instances_dict[keys_list[1]].jdti.normalized_data.copy()
-        tmp2.columns = [keys_list[1]]*len(tmp2.columns)
-            
+        tmp2.columns = [keys_list[1]] * len(tmp2.columns)
+
         common_idx = tmp1.index.intersection(tmp2.index)
 
         tmp1 = tmp1.loc[common_idx]
         tmp2 = tmp2.loc[common_idx]
-        
-        concat_df = pd.concat([tmp1, tmp2],  axis=1)
-        
-        
+
+        concat_df = pd.concat([tmp1, tmp2], axis=1)
+
     tmp_df_1 = instances_dict[keys_list[0]].cells_connection
     tmp_df_2 = instances_dict[keys_list[1]].cells_connection
 
-    
-    tmp_df_1['directionality'] = [x if x is not None else 'Undefined' for x in tmp_df_1['directionality']]
-    tmp_df_2['directionality'] = [x if x is not None else 'Undefined' for x in tmp_df_2['directionality']]
+    tmp_df_1["directionality"] = [
+        x if x is not None else "Undefined" for x in tmp_df_1["directionality"]
+    ]
+    tmp_df_2["directionality"] = [
+        x if x is not None else "Undefined" for x in tmp_df_2["directionality"]
+    ]
 
-        
-    tmp_df_1 = tmp_df_1[tmp_df_1['directionality'].isin(connection_type)]
-    tmp_df_2 = tmp_df_2[tmp_df_2['directionality'].isin(connection_type)]
-    
+    tmp_df_1 = tmp_df_1[tmp_df_1["directionality"].isin(connection_type)]
+    tmp_df_2 = tmp_df_2[tmp_df_2["directionality"].isin(connection_type)]
 
-    
-    tmp_con1 = list(set(list(tmp_df_1['interactor1']) + 
-                        list(tmp_df_1['interactor2'])))
-    
-    tmp_con2 = list(set(list(tmp_df_2['interactor1']) + 
-                        list(tmp_df_2['interactor2'])))
-    
+    tmp_con1 = list(set(list(tmp_df_1["interactor1"]) + list(tmp_df_1["interactor2"])))
+
+    tmp_con2 = list(set(list(tmp_df_2["interactor1"]) + list(tmp_df_2["interactor2"])))
+
     genes = list(set(tmp_con1 + tmp_con2))
-    
+
     genes2 = [x for x in genes if x in common_idx]
-    
-    concat_df = concat_df.loc[genes2,:]
-    
+
+    concat_df = concat_df.loc[genes2, :]
+
     results = calc_DEG(
         data=concat_df,
-        metadata_list  = None,
-        entities = 'All',
-        sets = None,
-        min_exp = 0,
-        min_pct = 0,
-        n_proc = 10,
+        metadata_list=None,
+        entities="All",
+        sets=None,
+        min_exp=0,
+        min_pct=0,
+        n_proc=10,
     )
-    
-    results = results[results['valid_group'] == keys_list[0]]
-    
+
+    results = results[results["valid_group"] == keys_list[0]]
+
     return results
-    
-    
-
-
-
-
-
-
