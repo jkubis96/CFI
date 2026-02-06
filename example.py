@@ -1,4 +1,4 @@
-from cfi import CellFunCon
+from cfi_toolkit import CellFunCon
 
 from jdti import COMPsc
 
@@ -39,7 +39,7 @@ enr = instance1.get_enrichment_data(
 enr.to_csv("go.csv", index=False)
 
 
-from cfi import encrichment_cell_heatmap
+from cfi_toolkit import encrichment_cell_heatmap
 
 fig1 = encrichment_cell_heatmap(data = enr,
                              fig_size = (3,3), 
@@ -182,7 +182,7 @@ cell_int = instance1.get_gene_interactions('STRIATUM_1 # s1')
 
 cell_int.to_csv("cell_int.csv", index=False)
 
-from cfi import gene_interaction_network
+from cfi_toolkit import gene_interaction_network
 
 
 
@@ -201,7 +201,7 @@ cell_con = instance1.get_cell_connections()
 cell_con.to_csv("cell_con.csv", index=False)
 
 
-from cfi import draw_cell_conections
+from cfi_toolkit import draw_cell_conections
 
 fig6 = draw_cell_conections(cell_con)
 
@@ -230,7 +230,7 @@ instance2.calculate_cell_connections()
 
 
 
-from cfi import compare_connections
+from cfi_toolkit import compare_connections
 
 
 instances_dict = {'healthy':instance2,
@@ -249,7 +249,7 @@ comparison = compare_connections(instances_dict=instances_dict,
 comparison.to_csv("comparison.csv", index=False)
 
 
-from cfi import volcano_plot_conections
+from cfi_toolkit import volcano_plot_conections
 
 fig7 = volcano_plot_conections(
     deg_data = comparison,

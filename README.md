@@ -34,7 +34,7 @@ CFI extends these capabilities by enabling the identification of direct cell–c
 
 
 <p align="center">
-<img  src="fig/log.png" alt="drawing" width="500" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/log.png" alt="drawing" width="500" />
 </p>
 
 
@@ -89,7 +89,7 @@ In the case of interactions network analyses, it is recommended to use the  [JVe
 #### In command line write:
 
 ```
-pip install cfi
+pip install cfi-toolkit
 ```
 
 
@@ -117,7 +117,7 @@ Documentation for classes and functions is available here 👉 [Documentation �
 
 import os
 from jdti import COMPsc          # JDtI module for handling single-cell projects
-from cfi import CellFunCon       # Cell functional connectivity / enrichment analysis
+from cfi_toolkit import CellFunCon       # Cell functional connectivity / enrichment analysis
 
 
 # ------------------------------------------------------------
@@ -229,7 +229,7 @@ data = instance.get_enrichment_data(
  Visualization
 
 ```
-from cfi import encrichment_cell_heatmap
+from cfi_toolkit import encrichment_cell_heatmap
 
 fig = encrichment_cell_heatmap(data = data,
                              fig_size = (3,3), 
@@ -245,7 +245,7 @@ fig = encrichment_cell_heatmap(data = data,
 
 
 <p align="center">
-<img  src="fig/heatmap.svg" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/heatmap.svg" alt="drawing" width="450" />
 </p>
 
 
@@ -275,7 +275,7 @@ data = instance.get_enrichment_data(
 Visualization
 
 ```
-from cfi import encrichment_cell_heatmap
+from cfi_toolkit import encrichment_cell_heatmap
 
 fig = encrichment_cell_heatmap(data = enr,
                              fig_size = (3,3), 
@@ -291,7 +291,7 @@ fig = encrichment_cell_heatmap(data = enr,
 
 
 <p align="center">
-<img  src="fig/heatmap2.svg" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/heatmap2.svg" alt="drawing" width="450" />
 </p>
 
 
@@ -305,7 +305,7 @@ fig = encrichment_cell_heatmap(data = enr,
 Visualization
 
 ```
-from cfi import encrichment_cell_heatmap
+from cfi_toolkit import encrichment_cell_heatmap
 
 fig2 = encrichment_cell_heatmap(data = enr,
                              fig_size = (3,3), 
@@ -326,7 +326,7 @@ fig2 = encrichment_cell_heatmap(data = enr,
 
 
 <p align="center">
-<img  src="fig/heatmap3.svg" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/heatmap3.svg" alt="drawing" width="450" />
 </p>
 
 
@@ -358,7 +358,7 @@ data = instance.get_enrichment_data(
 Visualization
 
 ```
-from cfi import encrichment_cell_heatmap
+from cfi_toolkit import encrichment_cell_heatmap
 
 fig = encrichment_cell_heatmap(data = enr,
                              fig_size = (3,3), 
@@ -374,7 +374,7 @@ fig = encrichment_cell_heatmap(data = enr,
 
 
 <p align="center">
-<img  src="fig/heatmap4.svg" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/heatmap4.svg" alt="drawing" width="450" />
 </p>
 
 
@@ -405,7 +405,7 @@ data = instance.get_enrichment_data(
 Visualization
 
 ```
-from cfi import encrichment_cell_heatmap
+from cfi_toolkit import encrichment_cell_heatmap
 
 fig = encrichment_cell_heatmap(data = enr,
                              fig_size = (3,3), 
@@ -421,7 +421,7 @@ fig = encrichment_cell_heatmap(data = enr,
 
 
 <p align="center">
-<img  src="fig/heatmap5.svg" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/heatmap5.svg" alt="drawing" width="450" />
 </p>
 
 <br />
@@ -441,7 +441,7 @@ instance.get_included_cells()
 ```
 
 <p align="center">
-<img  src="fig/out_cell.bmp" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/out_cell.bmp" alt="drawing" width="450" />
 </p>
 
 
@@ -467,7 +467,7 @@ cell_int = instance.get_gene_interactions('STRIATUM_1 # s1')
  Visualization
 
 ```
-from cfi import gene_interaction_network
+from cfi_toolkit import gene_interaction_network
 
 fig5 = gene_interaction_network(idata = cell_int, min_con = 2)
 
@@ -479,7 +479,7 @@ nt.edit()
 
 
 <p align="center">
-<img  src="fig/gin.bmp" alt="drawing" width="300" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/gin.bmp" alt="drawing" width="300" />
 </p>
 
 <br />
@@ -523,7 +523,7 @@ cell_con = instance.get_cell_connections()
 Visualization
 
 ```
-from cfi import draw_cell_conections
+from cfi_toolkit import draw_cell_conections
 
 fig = draw_cell_conections(cell_con)
 
@@ -534,7 +534,7 @@ nt.edit()
 ```
 
 <p align="center">
-<img  src="fig/cell_con.bmp" alt="drawing" width="300" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/cell_con.bmp" alt="drawing" width="300" />
 </p>
 
 <br />
@@ -554,7 +554,7 @@ instance.save_project('project')
 Loading previously saved project
 
 ```
-from cfi import CellFunCon   
+from cfi_toolkit import CellFunCon   
 
 instance = CellFunCon.load_project('project.psc')
 ```
@@ -573,7 +573,7 @@ instance = CellFunCon.load_project('project.psc')
 # ------------------------------------------------------------
 import os
 from jdti import COMPsc          # JDtI module for single-cell project handling
-from cfi import CellFunCon       # Functional analysis and cell interaction inference
+from cfi_toolkit import CellFunCon       # Functional analysis and cell interaction inference
 
 
 # ------------------------------------------------------------
@@ -644,7 +644,7 @@ instance2.calculate_cell_connections()
 # - healthy condition
 # - disease condition
 
-from cfi import compare_connections
+from cfi_toolkit import compare_connections
 
 instances_dict = {
     "healthy": instance2,
@@ -675,7 +675,7 @@ comparison = compare_connections(instances_dict=instances_dict,
 Visualization
 
 ```
-from cfi import volcano_plot_conections
+from cfi_toolkit import volcano_plot_conections
 
 fig = volcano_plot_conections(
     deg_data = comparison,
@@ -692,7 +692,7 @@ fig = volcano_plot_conections(
 
 
 <p align="center">
-<img  src="fig/volcano.svg" alt="drawing" width="450" />
+<img  src="https://github.com/jkubis96/CFI/raw/refs/heads/lib_merging/fig/volcano.svg" alt="drawing" width="450" />
 </p>
 
 
