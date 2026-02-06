@@ -10,7 +10,7 @@ import networkx as nx
 from jdti import COMPsc
 from matplotlib.figure import Figure
 
-from cfi import (
+from cfi_toolkit import (
     CellFunCon,
     compare_connections,
     draw_cell_conections,
