@@ -74,6 +74,7 @@ In the case of interactions network analyses, it is recommended to use the  [JVe
     - [1.3. Marker gene enrichment analysis](#bf3)
     - [1.4. Cell inside gene interactions](#bf4)
     - [1.5. Cell-cell interactions](#bf5)
+    - [1.6. Saving & loading project](#bf6)
   - [2. Comparison of cell interaction sets](#br)
     - [2.1. Create projects](#br1)
     - [2.2. Calculate interactions](#br2)
@@ -97,7 +98,7 @@ pip install cfi
 ## Documentation <a id="doc"></a>
 
 
-Documentation for classes and functions is available here 👉 [Documentation 📄](https://jkubis96.github.io/JDtI/jdti.html)
+Documentation for classes and functions is available here 👉 [Documentation 📄](https://jkubis96.github.io/CFI/cfi.html)
 
 
 <br />
@@ -536,8 +537,27 @@ nt.edit()
 <img  src="fig/cell_con.bmp" alt="drawing" width="300" />
 </p>
 
+<br />
 
 
+
+##### 1.6. Saving & loading project <a id="bf6"></a>
+
+
+Saving current project
+
+```
+instance.save_project('project')
+```
+
+
+Loading previously saved project
+
+```
+from cfi import CellFunCon   
+
+instance = CellFunCon.load_project('project.psc')
+```
 
 
 <br />
@@ -675,6 +695,10 @@ fig = volcano_plot_conections(
 <img  src="fig/volcano.svg" alt="drawing" width="450" />
 </p>
 
+
+<br />
+
+An example analysis pipeline is available here → [Example file](example.py)
 
 <br />
 
