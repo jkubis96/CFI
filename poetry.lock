@@ -618,14 +618,14 @@ test = ["build", "mypy", "pytest", "pytest-xdist", "ruff", "twine", "types-reque
 
 [[package]]
 name = "gedspy"
-version = "2.1.9"
+version = "2.2.1"
 description = "GEDSpy (Gene Enrichment for Drug Searching)"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "gedspy-2.1.9-py3-none-any.whl", hash = "sha256:86a520e10732eab1e35c7d3cf2a2969b56512db20ff4782fcb550d68b59c27ac"},
-    {file = "gedspy-2.1.9.tar.gz", hash = "sha256:94f844a50aae389a7d3c0a540a5ecca673f9bf1098b2b12b8347e229b477ffb7"},
+    {file = "gedspy-2.2.1-py3-none-any.whl", hash = "sha256:e95e34438c339ed1a225b0c3ef90579ec1d5e89199529fc01a5c04b2c9a2e14d"},
+    {file = "gedspy-2.2.1.tar.gz", hash = "sha256:881ab665b7e6400adb86073a37c369d8d64ddf2bf9723eb96ede3a3573abbbdd"},
 ]
 
 [package.dependencies]
@@ -763,14 +763,14 @@ test = ["ipykernel", "nbformat", "nose (>=0.10.1)", "numpy (>=1.17)", "pygments"
 
 [[package]]
 name = "jdti"
-version = "0.2.3"
+version = "0.2.4"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.12"
 groups = ["main"]
 files = [
-    {file = "jdti-0.2.3-py3-none-any.whl", hash = "sha256:dc060b1898e41c00c35d8255869759f271b668b538d8f6330da1afb7131d3f30"},
-    {file = "jdti-0.2.3.tar.gz", hash = "sha256:619f4dceb1de14d5ed67622553937a6534fd0f4613e2ef38d7b7ff24e625900a"},
+    {file = "jdti-0.2.4-py3-none-any.whl", hash = "sha256:df99f838e676183ade3b3d05c442313c86d64467f989db9da5500b69dfacac1e"},
+    {file = "jdti-0.2.4.tar.gz", hash = "sha256:2150b1e611f5f547fdc67903f363efafef30ed98073372003acb8d31b8935469"},
 ]
 
 [package.dependencies]
@@ -2501,4 +2501,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "7a850b647bbe60434c0051044fca0ab6b93c60bf3b13ede5d6ea9debebe1816c"
+content-hash = "f81bee1538e604d91a55a64c6c4d3d55ca04e7bd816c49c1bbd430861fbb5a88"

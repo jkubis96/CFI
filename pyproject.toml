@@ -1,6 +1,6 @@
 [project]
 name = "cfi-toolkit"
-version = "0.1.2"
+version = "0.1.3"
 description = "CFI: Cell Functionality and Interaction Analysis Tool"
 readme = "README.md"
 
@@ -19,9 +19,9 @@ license = { text = "GPL-3" }
 
 
 dependencies = [
-    "gedspy (>=2.1.9,<3.0.0)",
+    "gedspy (>=2.2.1,<3.0.0)",
     "llvmlite (>=0.46.0,<0.47.0)",
-    "jdti (>=0.2.3,<0.3.0)",
+    "jdti (>=0.2.4,<0.3.0)",
     "jvectorgraph (>=1.0.2,<2.0.0)",
     "pandas (<3.0.0)"
 ]
