@@ -763,14 +763,14 @@ test = ["ipykernel", "nbformat", "nose (>=0.10.1)", "numpy (>=1.17)", "pygments"
 
 [[package]]
 name = "jdti"
-version = "0.2.4"
+version = "0.2.5"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.12"
 groups = ["main"]
 files = [
-    {file = "jdti-0.2.4-py3-none-any.whl", hash = "sha256:df99f838e676183ade3b3d05c442313c86d64467f989db9da5500b69dfacac1e"},
-    {file = "jdti-0.2.4.tar.gz", hash = "sha256:2150b1e611f5f547fdc67903f363efafef30ed98073372003acb8d31b8935469"},
+    {file = "jdti-0.2.5-py3-none-any.whl", hash = "sha256:22b77ebf5a3a9bd57979ea14c56c1f45fa5bf22f801f27722ac5705327c6ca96"},
+    {file = "jdti-0.2.5.tar.gz", hash = "sha256:b93c21f3c70d9658e34ee218882b5c3cf6bb73d460b4f3ba0d2c2b613170df46"},
 ]
 
 [package.dependencies]
@@ -2501,4 +2501,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "f81bee1538e604d91a55a64c6c4d3d55ca04e7bd816c49c1bbd430861fbb5a88"
+content-hash = "21f21e169df4fd3bc20afe5a9f931e0092c49126bd5bba9ab9697a7fb64a142b"

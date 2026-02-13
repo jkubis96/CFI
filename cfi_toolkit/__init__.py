@@ -18,5 +18,5 @@ from .CellFunctionality import *
 from .CellGraph import *
 
 print("")
-print("Welcome in CFI v.0.1.2 library")
+print("Welcome in CFI v.0.1.4 library")
 print("")
