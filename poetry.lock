@@ -618,14 +618,14 @@ test = ["build", "mypy", "pytest", "pytest-xdist", "ruff", "twine", "types-reque
 
 [[package]]
 name = "gedspy"
-version = "2.2.1"
+version = "2.2.2"
 description = "GEDSpy (Gene Enrichment for Drug Searching)"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "gedspy-2.2.1-py3-none-any.whl", hash = "sha256:e95e34438c339ed1a225b0c3ef90579ec1d5e89199529fc01a5c04b2c9a2e14d"},
-    {file = "gedspy-2.2.1.tar.gz", hash = "sha256:881ab665b7e6400adb86073a37c369d8d64ddf2bf9723eb96ede3a3573abbbdd"},
+    {file = "gedspy-2.2.2-py3-none-any.whl", hash = "sha256:79502d23a50fc13a319b469f63c3d1ec4e749163e113a05d3558e4de9880db9e"},
+    {file = "gedspy-2.2.2.tar.gz", hash = "sha256:e7e2815a1dd90d86d6d3e6a0b3d8e742a8f542aaa0ef805cc5df19f51bb59ae4"},
 ]
 
 [package.dependencies]
@@ -2501,4 +2501,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "21f21e169df4fd3bc20afe5a9f931e0092c49126bd5bba9ab9697a7fb64a142b"
+content-hash = "84a6fffb0550203298b09033a217f28cf55288d482fee7c8b92c3d66a0c1e2da"
