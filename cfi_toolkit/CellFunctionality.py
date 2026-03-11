@@ -244,31 +244,36 @@ class CellFunCon:
 
                 tmp = tmp.sort_values("esm", ascending=False).head(top_max)
 
-                data_dict[c] = {}
-                enr = copy.copy(self.enr_full_info)
-                enr.genome = enr.genome[
-                    enr.genome["found_names"].isin(list(set(tmp["feature"])))
-                ].reset_index(drop=True)
-                enr.enriche_specificiti()
-                enr.enriche_KEGG()
-                enr.enriche_GOTERM()
-                enr.enriche_REACTOME()
-                enr.enriche_IntAct()
-                enr.enriche_STRING()
-                enr.enriche_specificiti()
+                if len(tmp.index) > 0:
+                    data_dict[c] = {}
+                    enr = copy.copy(self.enr_full_info)
+                    enr.genome = enr.genome[
+                        enr.genome["found_names"].isin(list(set(tmp["feature"])))
+                    ].reset_index(drop=True)
+                    enr.enriche_specificiti()
+                    enr.enriche_KEGG()
+                    enr.enriche_GOTERM()
+                    enr.enriche_REACTOME()
+                    enr.enriche_IntAct()
+                    enr.enriche_STRING()
+                    enr.enriche_specificiti()
 
-                data = enr.get_results()
-                del enr
+                    data = enr.get_results()
+                    del enr
 
-                ans = Analysis(data)
-                ans.gene_interaction()
-                ans.features_specificity()
-                ans.REACTOME_overrepresentation()
-                ans.KEGG_overrepresentation()
-                ans.GO_overrepresentation()
-                ans.features_specificity()
+                    ans = Analysis(data)
+                    ans.gene_interaction()
+                    ans.features_specificity()
+                    ans.REACTOME_overrepresentation()
+                    ans.KEGG_overrepresentation()
+                    ans.GO_overrepresentation()
+                    ans.features_specificity()
 
-                data_dict[c] = ans.get_full_results()
+                    data_dict[c] = ans.get_full_results()
+                else:
+                    print(f'Cell {c} was not enriched. No specific markers were found in this dataset.')
+                    data_dict[c] = None
+                
 
             self.cells_enrichment = data_dict
 
@@ -341,6 +346,9 @@ class CellFunCon:
 
         pdl = []
         for i in self.cells_enrichment.keys():
+            if self.cells_enrichment[i] is None:
+                continue
+            
             print(i)
             if data_type == "specificity":
                 tmp_dict = self.cells_enrichment[i]["statistics"][data_type]
