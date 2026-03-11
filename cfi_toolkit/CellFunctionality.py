@@ -271,9 +271,10 @@ class CellFunCon:
 
                     data_dict[c] = ans.get_full_results()
                 else:
-                    print(f'Cell {c} was not enriched. No specific markers were found in this dataset.')
+                    print(
+                        f"Cell {c} was not enriched. No specific markers were found in this dataset."
+                    )
                     data_dict[c] = None
-                
 
             self.cells_enrichment = data_dict
 
@@ -348,7 +349,7 @@ class CellFunCon:
         for i in self.cells_enrichment.keys():
             if self.cells_enrichment[i] is None:
                 continue
-            
+
             print(i)
             if data_type == "specificity":
                 tmp_dict = self.cells_enrichment[i]["statistics"][data_type]
