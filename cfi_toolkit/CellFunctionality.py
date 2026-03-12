@@ -148,8 +148,8 @@ class CellFunCon:
             with open(filename, "rb") as f:
                 obj = pickle.load(f)
             if not isinstance(obj, cls):
-                raise TypeError("Plik nie zawiera obiektu Project")
-            print(f"Projekt wczytany z {filename}")
+                raise TypeError("File does not include project.psc")
+            print(f"Project loaded from {filename}")
             return obj
         else:
             raise ValueError("Project not belong to CellFunCon project data.")
@@ -187,19 +187,26 @@ class CellFunCon:
 
         self.cells_markers = self.jdti.var_data
 
-    def enrich_cells_fucntionality(self, p_value=0.05, log_fc=0.25, top_max=500):
+    def enrich_cells_fucntionality(
+        self, p_value=0.05, adj=True, log_fc=0.1, top_max=500
+    ):
         """
         Performs functional enrichment analysis for each cell type based on marker genes.
 
         Parameters
         ----------
-        p_value : float, optional
-            Maximum adjusted p-value for significant genes (default 0.05).
+        p_value : float
+            Maximum p-value for significant genes (default 0.05).
 
-        log_fc : float, optional
-            Minimum log fold-change threshold for marker genes (default 0.25).
+        adj : bool
+            If True, the adjusted p-values are used to determine significant genes.
+            Adjusted p-values are calculated using the Benjamini–Hochberg false
+            discovery rate (FDR) correction. If False, raw p-values are used instead.
 
-        top_max : int, optional
+        log_fc : float
+            Minimum log fold-change threshold for marker genes (default 0.1).
+
+        top_max : int
             Maximum number of top marker genes per cell type to consider (default 500).
 
         Raises
@@ -223,16 +230,18 @@ class CellFunCon:
             max_c = len(cells)
             for n, c in enumerate(cells):
                 print(f"\nAnalysis {n+1} of {max_c} cells --> {c} \n")
-                tmp = markers[
-                    (markers["valid_group"] == c)
-                    & (markers["adj_pval"] <= p_value)
-                    & (markers["log(FC)"] > log_fc)
-                ]
-                names = list(set(tmp["feature"]))
 
-                tmp = tmp[tmp["feature"].isin(names)]
+                if adj:
+                    tmp = markers[
+                        (markers["valid_group"] == c)
+                        & (markers["adj_pval"] <= p_value)
+                        & (markers["log(FC)"] > log_fc)
+                    ]
+                    names = list(set(tmp["feature"]))
 
-                if len(tmp.index) < 10:
+                    tmp = tmp[tmp["feature"].isin(names)]
+
+                else:
                     tmp = markers[
                         (markers["valid_group"] == c)
                         & (markers["p_val"] <= p_value)
