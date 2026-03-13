@@ -40,6 +40,7 @@ def gene_interaction_network(idata: pd.DataFrame, min_con: int = 2):
     Returns
     -------
     nx.Graph: A NetworkX graph representing the interaction network.
+
         - Nodes have attributes:
             - "size": node size based on connection count (log-scaled)
             - "color": node color (default is 'khaki')
@@ -281,7 +282,9 @@ def encrichment_cell_heatmap(
     return figure
 
 
-def draw_cell_conections(data:pd.DataFrame, top_n:int=5, weight_percentile_threshold:int | float = .75):
+def draw_cell_conections(
+    data: pd.DataFrame, top_n: int = 5, weight_percentile_threshold: int | float = 0.75
+):
     """
     Creates a cell-cell interaction network graph based on co-occurrence frequency.
 
@@ -299,15 +302,16 @@ def draw_cell_conections(data:pd.DataFrame, top_n:int=5, weight_percentile_thres
         Maximal n neighboured interactions to source cell. Default is 5.
 
     weight_percentile_threshold : float, optional
-        Percentile used to compute the minimum interaction weight threshold. 
-        Interactions with weights below this percentile are filtered out. 
-        If no interaction for a given source cell meets this threshold, 
+        Percentile used to compute the minimum interaction weight threshold.
+        Interactions with weights below this percentile are filtered out.
+        If no interaction for a given source cell meets this threshold,
         the top-1 interaction (highest weight) is retained. Default is 0.75.
 
     Returns
     -------
     nx.Graph
         A NetworkX graph with attributes:
+
             - Nodes:
                 - "size": node size (default 10)
                 - "color": node color (default "#FFA07A")
@@ -334,13 +338,12 @@ def draw_cell_conections(data:pd.DataFrame, top_n:int=5, weight_percentile_thres
     min_weight = cell_cell_df["weight"].quantile(weight_percentile_threshold)
 
     df_top = (
-        cell_cell_df
-        .sort_values("weight", ascending=False)
+        cell_cell_df.sort_values("weight", ascending=False)
         .groupby("cell1", group_keys=False)
         .apply(
             lambda x: (
-                x[x["weight"] >= min_weight].head(top_n) 
-                if (x["weight"] >= min_weight).any() 
+                x[x["weight"] >= min_weight].head(top_n)
+                if (x["weight"] >= min_weight).any()
                 else x.head(1)
             )
         )
@@ -348,7 +351,7 @@ def draw_cell_conections(data:pd.DataFrame, top_n:int=5, weight_percentile_thres
 
     cell_cell_df["weight"] = np.log1p(cell_cell_df["weight"])
     cell_list = list(set(list(cell_cell_df["cell1"]) + list(cell_cell_df["cell2"])))
-    
+
     G = nx.Graph()
 
     for c in cell_list:

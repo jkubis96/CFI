@@ -51,7 +51,7 @@ def instance1(jseq_s1, tmp_path_factory):
 
     inst.calculate_cells_markers(min_exp=0, min_pct=0.05, n_proc=2)
 
-    inst.enrich_cells_fucntionality(p_value=0.05, adj = False, log_fc=0.25, top_max=200)
+    inst.enrich_cells_fucntionality(p_value=0.05, adj=False, log_fc=0.25, top_max=200)
 
     return inst
 

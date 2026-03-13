@@ -520,15 +520,17 @@ class CellFunCon:
                 "`self.cells_markers` not defined. Use `self.cells_markers` to provide markers."
             )
 
-    def get_cell_connections(self, connection_type: list = [
-                                    "Adhesion-Adhesion",
-                                    "Gap-Gap",
-                                    "Ligand-Ligand",
-                                    "Ligand-Receptor",
-                                    "Receptor-Receptor",
-                                    "Undefined"
-                                ]
-        ):
+    def get_cell_connections(
+        self,
+        connection_type: list = [
+            "Adhesion-Adhesion",
+            "Gap-Gap",
+            "Ligand-Ligand",
+            "Ligand-Receptor",
+            "Receptor-Receptor",
+            "Undefined",
+        ],
+    ):
         """
         Returns the calculated cell-cell interaction connections.
 
@@ -557,10 +559,10 @@ class CellFunCon:
         >>> connections = self.get_cell_connections()
         """
 
-        tmp = self.cells_connection 
+        tmp = self.cells_connection
 
         tmp["directionality"] = [
-        x if x is not None else "Undefined" for x in tmp["directionality"]
+            x if x is not None else "Undefined" for x in tmp["directionality"]
         ]
 
         tmp = tmp[tmp["directionality"].isin(connection_type)]
@@ -577,7 +579,7 @@ def compare_connections(
         "Ligand-Ligand",
         "Ligand-Receptor",
         "Receptor-Receptor",
-        "Undefined"
+        "Undefined",
     ],
 ):
     """
