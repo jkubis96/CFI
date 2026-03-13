@@ -27,13 +27,15 @@ def gene_interaction_network(idata: pd.DataFrame, min_con: int = 2):
 
     Parameters
     ----------
-    idata (pd.DataFrame): A DataFrame containing the interaction data with columns:
+    idata : pd.DataFrame
+      A DataFrame containing the interaction data with columns:
         - "A" (str): first gene/protein in the interaction
         - "B" (str): second gene/protein in the interaction
         - "connection_type" (str): interaction type, e.g., "gene -> protein"
 
-    min_con (int, optional): Minimum number of connections (node degree) required
-                             for a gene/protein to be included in the network. Default is 2.
+    min_con : int, optional
+        Minimum number of connections (node degree) required
+        for a gene/protein to be included in the network. Default is 2.
 
     Returns
     -------
@@ -161,29 +163,40 @@ def encrichment_cell_heatmap(
 
     Parameters
     ----------
-    data (pd.DataFrame): Input data containing columns dependent on the source (GO-TERM, KEGG, REACTOME, specificity).
+    data : pd.DataFrame
+        Input data containing columns dependent on the source (GO-TERM, KEGG, REACTOME, specificity).
 
-    fig_size (tuple, optional): Figure size (width, height). Default is (35, 25).
+    fig_size : tuple, optional
+        Figure size (width, height). Default is (35, 25).
 
-    sets (list, optional): List of specific cell sets to include. Default is None (all sets).
+    sets : list, optional
+        List of specific cell sets to include. Default is None (all sets).
 
-    top_n (int, optional): Number of top terms to include per cell. Default is 2.
+    top_n : int, optional
+        Number of top terms to include per cell. Default is 2.
 
-    test (str, optional): Name of the statistical test column. Default is 'FISH'.
+    test : str, optional
+        Name of the statistical test column. Default is 'FISH'.
 
-    adj (str, optional): P-value adjustment method. Default is 'BH'.
+    adj : str, optional
+        P-value adjustment method. Default is 'BH'.
 
-    parent_inc (bool, optional): Whether to include parent terms in labels. Default is False.
+    parent_inc : bool, optional
+        Whether to include parent terms in labels. Default is False.
 
-    font_size (int, optional): Font size for the heatmap. Default is 16.
+    font_size : int, optional
+        Font size for the heatmap. Default is 16.
 
-    clustering (str | None, optional): Clustering method for rows/columns ('ward', 'single', None). Default is 'ward'.
+    clustering : str | None, optional
+        Clustering method for rows/columns ('ward', 'single', None). Default is 'ward'.
 
-    scale (bool, optional): Whether to scale values before plotting. Default is True.
+    scale : bool, optional
+        Whether to scale values before plotting. Default is True.
 
     Returns
     -------
-    matplotlib.figure.Figure: A heatmap figure of functional enrichment per cell type.
+    matplotlib.figure.Figure
+        A heatmap figure of functional enrichment per cell type.
 
     Raises
     ------
@@ -268,7 +281,7 @@ def encrichment_cell_heatmap(
     return figure
 
 
-def draw_cell_conections(data, top_n=15):
+def draw_cell_conections(data:pd.DataFrame, top_n:int=5, weight_percentile_threshold:int | float = .75):
     """
     Creates a cell-cell interaction network graph based on co-occurrence frequency.
 
@@ -277,23 +290,32 @@ def draw_cell_conections(data, top_n=15):
 
     Parameters
     ----------
-    data (pd.DataFrame): A DataFrame containing columns:
-        - "cell1" (str): source cell type
-        - "cell2" (str): target cell type
+    data : pd.DataFrame)
+        A DataFrame containing columns:
+            - "cell1" (str): source cell type
+            - "cell2" (str): target cell type
 
-    top_n (int, optional): Number of top interactions to include per source cell. Default is 15.
+    top_n : int, optional)
+        Maximal n neighboured interactions to source cell. Default is 5.
+
+    weight_percentile_threshold : float, optional
+        Percentile used to compute the minimum interaction weight threshold. 
+        Interactions with weights below this percentile are filtered out. 
+        If no interaction for a given source cell meets this threshold, 
+        the top-1 interaction (highest weight) is retained. Default is 0.75.
 
     Returns
     -------
-    nx.Graph: A NetworkX graph with attributes:
-        - Nodes:
-            - "size": node size (default 10)
-            - "color": node color (default "#FFA07A")
+    nx.Graph
+        A NetworkX graph with attributes:
+            - Nodes:
+                - "size": node size (default 10)
+                - "color": node color (default "#FFA07A")
 
-        - Edges:
-            - "weight": edge weight (log-transformed from frequency)
-            - "color": edge color (default '#DCDCDC')
-            - "alpha": edge transparency (default 0.05)
+            - Edges:
+                - "weight": edge weight (log-transformed from frequency)
+                - "color": edge color (default '#DCDCDC')
+                - "alpha": edge transparency (default 0.05)
 
     Example
     -------
@@ -309,14 +331,24 @@ def draw_cell_conections(data, top_n=15):
         .sort_values("weight", ascending=False)
     )
 
-    cell_cell_df["weight"] = np.log(cell_cell_df["weight"])
-
-    cell_list = list(set(list(cell_cell_df["cell1"]) + list(cell_cell_df["cell2"])))
+    min_weight = cell_cell_df["weight"].quantile(weight_percentile_threshold)
 
     df_top = (
-        cell_cell_df.sort_values("weight", ascending=False).groupby("cell1").head(top_n)
+        cell_cell_df
+        .sort_values("weight", ascending=False)
+        .groupby("cell1", group_keys=False)
+        .apply(
+            lambda x: (
+                x[x["weight"] >= min_weight].head(top_n) 
+                if (x["weight"] >= min_weight).any() 
+                else x.head(1)
+            )
+        )
     )
 
+    cell_cell_df["weight"] = np.log1p(cell_cell_df["weight"])
+    cell_list = list(set(list(cell_cell_df["cell1"]) + list(cell_cell_df["cell2"])))
+    
     G = nx.Graph()
 
     for c in cell_list:
@@ -329,7 +361,7 @@ def draw_cell_conections(data, top_n=15):
         source = row["cell1"]
         target = row["cell2"]
         color = "#DCDCDC"
-        weight = row["weight"] / 10
+        weight = row["weight"]
 
         G.add_edge(source, target, weight=weight, color=color, alpha=0.05)
 
@@ -387,7 +419,8 @@ def volcano_plot_conections(
 
     Returns
     -------
-    matplotlib.figure.Figure: The generated volcano plot figure.
+    matplotlib.figure.Figure
+        The generated volcano plot figure.
     """
 
     if top_rank.upper() not in ["FC", "P_VALUE"]:

@@ -520,9 +520,32 @@ class CellFunCon:
                 "`self.cells_markers` not defined. Use `self.cells_markers` to provide markers."
             )
 
-    def get_cell_connections(self):
+    def get_cell_connections(self, connection_type: list = [
+                                    "Adhesion-Adhesion",
+                                    "Gap-Gap",
+                                    "Ligand-Ligand",
+                                    "Ligand-Receptor",
+                                    "Receptor-Receptor",
+                                    "Undefined"
+                                ]
+        ):
         """
         Returns the calculated cell-cell interaction connections.
+
+        Parameters
+        ----------
+        connection_type : list of str, optional
+            List of interaction types used to filter the returned cell–cell connections
+            based on the molecular directionality of the interaction. Possible values:
+
+            - "Adhesion-Adhesion" : interaction between two adhesion molecules.
+            - "Gap-Gap" : connection through gap junction proteins.
+            - "Ligand-Ligand" : interaction between two ligand molecules.
+            - "Ligand-Receptor" : directional interaction where a ligand binds to a receptor.
+            - "Receptor-Receptor" : interaction between two receptor molecules.
+            - "Undefined" : interactions where the directionality could not be determined.
+
+            By default, all interaction types are included.
 
         Returns
         -------
@@ -534,7 +557,15 @@ class CellFunCon:
         >>> connections = self.get_cell_connections()
         """
 
-        return self.cells_connection
+        tmp = self.cells_connection 
+
+        tmp["directionality"] = [
+        x if x is not None else "Undefined" for x in tmp["directionality"]
+        ]
+
+        tmp = tmp[tmp["directionality"].isin(connection_type)]
+
+        return tmp
 
 
 def compare_connections(
@@ -546,7 +577,7 @@ def compare_connections(
         "Ligand-Ligand",
         "Ligand-Receptor",
         "Receptor-Receptor",
-        "Undefined",
+        "Undefined"
     ],
 ):
     """
@@ -575,6 +606,23 @@ def compare_connections(
         Dictionary mapping each key in ``instances_dict`` to a list of cell names
         to be used for the comparison. If ``None``, all cells are used and genes
         are filtered based on cell–cell connections.
+
+    connection_type : list of str, optional
+        List of interaction types used to filter cell–cell connections that are
+        considered in the gene expression comparison. Only connections with the
+        specified molecular interaction types will be used to define interacting
+        cells between the two instances.
+
+        Possible values:
+
+        - "Adhesion-Adhesion" : interaction between two adhesion molecules.
+        - "Gap-Gap" : connection mediated by gap junction proteins.
+        - "Ligand-Ligand" : interaction between two ligand molecules.
+        - "Ligand-Receptor" : directional interaction where a ligand binds to a receptor.
+        - "Receptor-Receptor" : interaction between two receptor molecules.
+        - "Undefined" : interactions where the directionality could not be determined.
+
+        By default, all interaction types are included in the comparison.
 
     Returns
     -------
