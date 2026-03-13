@@ -98,7 +98,7 @@ pip install cfi-toolkit
 ## Documentation <a id="doc"></a>
 
 
-Documentation for classes and functions is available here 👉 [Documentation 📄](https://jkubis96.github.io/CFI/cfi.html)
+Documentation for classes and functions is available here 👉 [Documentation 📄](https://jkubis96.github.io/CFI/cfi_toolkit.html)
 
 
 <br />
