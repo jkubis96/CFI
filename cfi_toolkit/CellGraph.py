@@ -349,7 +349,7 @@ def draw_cell_conections(
         )
     )
 
-    cell_cell_df["weight"] = np.log1p(cell_cell_df["weight"])
+    df_top["weight"] = np.log1p(df_top["weight"])
     cell_list = list(set(list(cell_cell_df["cell1"]) + list(cell_cell_df["cell2"])))
 
     G = nx.Graph()
