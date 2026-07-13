@@ -1,6 +1,6 @@
 [project]
 name = "cfi-toolkit"
-version = "0.2.1"
+version = "0.2.2"
 description = "CFI: Cell Functionality and Interaction Analysis Tool"
 readme = "README.md"
 

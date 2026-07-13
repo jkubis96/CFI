@@ -3,6 +3,7 @@ import os
 import pickle
 import sys
 
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
@@ -10,6 +11,7 @@ _old_stdout = sys.stdout
 sys.stdout = open(os.devnull, "w")
 
 from gedspy import Analysis, Enrichment
+from jdti import calc_DEG
 
 sys.stdout.close()
 sys.stdout = _old_stdout
@@ -478,18 +480,23 @@ class CellFunCon:
                 data_dict[c] = data["CellConnections"]
 
             full_data = []
+
             for c1 in tqdm(cells):
                 for c2 in cells:
                     if c1 != c2:
-                        c1_d = pd.DataFrame(data_dict[c1]["interactor2"])
-                        c2_d = pd.DataFrame(data_dict[c2]["interactor1"])
+                        c1_d = pd.DataFrame(
+                            data_dict[c1]["interactor2"]
+                        ).drop_duplicates()
+                        c2_d = pd.DataFrame(
+                            data_dict[c2]["interactor1"]
+                        ).drop_duplicates()
 
-                        mutual_lr = c1_d["interaction"][
-                            c1_d["interaction"].isin(list(c2_d["interaction"]))
-                        ]
+                        mutual_lr = np.intersect1d(
+                            c1_d["interaction"].unique(), c2_d["interaction"].unique()
+                        )
 
                         to_ret = (
-                            c1_d[c1_d["interaction"].isin(list(mutual_lr))]
+                            c1_d[c1_d["interaction"].isin(mutual_lr)]
                             .drop(
                                 [
                                     "Species",
@@ -499,21 +506,28 @@ class CellFunCon:
                                 ],
                                 axis=1,
                             )
-                            .reset_index(drop=True)
+                            .rename(columns={"found_names_1": "interactor1"})
+                            .drop_duplicates()
                         )
 
-                        to_ret = to_ret.rename(columns={"found_names_1": "interactor1"})
-                        c2_subset = c2_d[["interaction", "found_names_2"]].rename(
-                            columns={"found_names_2": "interactor2"}
+                        c2_subset = (
+                            c2_d[["interaction", "found_names_2"]]
+                            .rename(columns={"found_names_2": "interactor2"})
+                            .drop_duplicates()
                         )
 
-                        to_ret = to_ret.merge(c2_subset, on="interaction", how="left")
+                        to_ret = to_ret.merge(
+                            c2_subset, on="interaction", how="left"
+                        ).drop_duplicates()
+
                         to_ret["cell1"] = c1
                         to_ret["cell2"] = c2
 
                         full_data.append(to_ret)
 
-            self.cells_connection = pd.concat(full_data)
+            self.cells_connection = (
+                pd.concat(full_data).drop_duplicates().reset_index(drop=True)
+            )
 
         else:
             raise ValueError(
@@ -654,9 +668,6 @@ def compare_connections(
     --------
     jdti.calc_DEG : Function used to compute differential expression.
     """
-
-    import pandas as pd
-    from jdti import calc_DEG
 
     if isinstance(cells_compartment, dict):
 
